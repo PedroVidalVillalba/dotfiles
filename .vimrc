@@ -10,6 +10,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'joshdick/onedark.vim'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'lervag/vimtex'
+Plug 'christoomey/vim-tmux-navigator'
 
 call plug#end()
 
@@ -160,6 +161,9 @@ function! RunRScript()
 	sleep 1
 	call RPlot()
 endfunction
+
+" Write all buffers before navigating from vim to tmux pane
+let g:tmux_navigator_save_on_switch = 2
 
 """ Atajos generales
 " Búsqueda con Espacio+s
