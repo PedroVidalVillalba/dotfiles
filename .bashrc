@@ -64,17 +64,29 @@ git_prompt() {
     fi
 }
 
+# Onedark theme colors
+one_none="\[\e[00m\]"
+one_red_bg="\[\e[48;2;224;108;117m\]"
+one_green_bg="\[\e[48;2;152;195;121m\]"
+one_blue_bg="\[\e[48;2;97;175;239m\]"
+one_red_fg="\[\e[38;2;224;108;117m\]"
+one_green_fg="\[\e[38;2;152;195;121m\]"
+one_blue_fg="\[\e[38;2;97;175;239m\]"
+one_black="\[\e[38;2;40;44;52m\]"
+
+beam_cursor="\[\e[5 q\]"
+
 if [ "$color_prompt" = yes ]; then
     PS1="${debian_chroot:+($debian_chroot)}" 
-    PS1+="\n┌"
-    PS1+="\[\e[00m\]\[\e[38;2;16;184;64m\]"          # Triangle separator
-    PS1+="\[\e[48;2;16;184;64m\]\[\e[38;2;16;32;16m\]  \u@\h "           # User and hostname
-    PS1+="\[\e[48;2;32;16;128m\]\[\e[38;2;16;184;64m\]"          # Triangle separator
-    PS1+="\[\e[48;2;32;16;128m\]\[\e[38;2;208;208;224m\]  \w "            # Working directory
-    PS1+="\[\e[48;2;184;32;16m\]\[\e[38;2;32;16;128m\]"          # Triangle separator
-    PS1+="\[\e[48;2;184;32;16m\]\[\e[38;2;64;32;16m\]\$(git_prompt)"     # Git branch
-    PS1+="\[\e[00m\]\[\e[38;2;184;32;16m\]"
-    PS1+="\[\e[00m\]\n└\[\e[5 q\] "                                               # Newline and prompt with beam cursor
+    PS1+="\n┌${beam_cursor}"
+    PS1+="${one_none}${one_green_fg}"             # Triangle separator
+    PS1+="${one_green_bg}${one_black}  \u@\h "  # User and hostname
+    PS1+="${one_blue_bg}${one_green_fg}"          # Triangle separator
+    PS1+="${one_blue_bg}${one_black}  \w "       # Working directory
+    PS1+="${one_red_bg}${one_blue_fg}"            # Triangle separator
+    PS1+="${one_red_bg}${one_black}\$(git_prompt)" # Git branch
+    PS1+="${one_none}${one_red_fg}"               # Triangle separator
+    PS1+="${one_none}\n└ "                         # Newline and prompt
 else
     export PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\n\$ '
 fi
