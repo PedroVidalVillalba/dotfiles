@@ -2,6 +2,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
 Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
 Plug 'jdhao/better-escape.vim'
@@ -51,7 +52,7 @@ set incsearch
 " Carga automáticamente los cambios al archivo que se hacen desde fuera de Vim
 set autoread
 
-" Muestra los comandos que se están escribiendo en la parte inferior izquierda
+" Muestra los comandos que se están escribiendo en la parte inferior derecha
 set showcmd
 
 " Habilita el ratón
@@ -70,9 +71,20 @@ set hidden
 
 set completeopt=menuone,preview,longest
 set shortmess+=c
+
+" Airline config
+" Display all buffers when there's only one tab open
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+let g:airline#extensions#branch#enabled = 1
+
+function! AirlineInit()
+    let g:airline_section_b = airline#section#create(['branch'])
+endfunction
+autocmd VimEnter * call AirlineInit()
  
 " Fondo con la transparencia de la terminal
-autocmd vimenter * hi Normal guibg=NONE ctermbg=NONE
+autocmd VimEnter * hi Normal guibg=NONE ctermbg=NONE
 
 " Cambiar Leader a la tecla de espacio
 let mapleader=" "
@@ -178,10 +190,8 @@ nnoremap <Leader>d :bd<CR>
 nnoremap <Leader><Tab> :bn<CR>
 " Windows
 nnoremap <Leader>v <C-W>v 
-nnoremap <Leader>j <C-W>j 
-nnoremap <Leader>k <C-W>k 
-nnoremap <Leader>h <C-W>h 
-nnoremap <Leader>l <C-W>l 
+nnoremap <Leader>h <C-W>s
+
 " FZF
 nnoremap <Leader>f :Files<CR>
 nnoremap <Leader>p :GFiles<CR>

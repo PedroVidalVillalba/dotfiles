@@ -57,17 +57,33 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+git_prompt() {
+    local rep=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/\* \(.*\)/\1/')
+    if [ "$rep" != "" ]; then
+        echo "  $rep "
+    fi
+}
+
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\n\$ '
+    PS1="${debian_chroot:+($debian_chroot)}" 
+    PS1+="\n┌"
+    PS1+="\[\e[00m\]\[\e[38;2;16;184;64m\]"          # Triangle separator
+    PS1+="\[\e[48;2;16;184;64m\]\[\e[38;2;16;32;16m\]  \u@\h "           # User and hostname
+    PS1+="\[\e[48;2;32;16;128m\]\[\e[38;2;16;184;64m\]"          # Triangle separator
+    PS1+="\[\e[48;2;32;16;128m\]\[\e[38;2;208;208;224m\]  \w "            # Working directory
+    PS1+="\[\e[48;2;184;32;16m\]\[\e[38;2;32;16;128m\]"          # Triangle separator
+    PS1+="\[\e[48;2;184;32;16m\]\[\e[38;2;64;32;16m\]\$(git_prompt)"     # Git branch
+    PS1+="\[\e[00m\]\[\e[38;2;184;32;16m\]"
+    PS1+="\[\e[00m\]\n└\[\e[5 q\] "                                               # Newline and prompt with beam cursor
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\n\$ '
+    export PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\n\$ '
 fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    export PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
     ;;
 *)
     ;;
