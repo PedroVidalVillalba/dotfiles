@@ -13,6 +13,7 @@ Plug 'vim-scripts/AutoComplPop'
 Plug 'lervag/vimtex'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'preservim/vimux'
+Plug 'edkolev/tmuxline.vim'
 
 call plug#end()
 

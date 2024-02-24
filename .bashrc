@@ -8,6 +8,11 @@ case $- in
       *) return;;
 esac
 
+# Start terminal using tmux (no exec to be able to dettach)
+if command -v tmux &>/dev/null && [ -n "$PS1" ] && [ -z "$TMUX" ]; then
+    tmux
+fi
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
