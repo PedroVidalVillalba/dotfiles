@@ -12,6 +12,7 @@ Plug 'joshdick/onedark.vim'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'lervag/vimtex'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'preservim/vimux'
 
 call plug#end()
 
@@ -72,6 +73,9 @@ set hidden
 set completeopt=menuone,preview,longest
 set shortmess+=c
 
+" Copy and paste to clipboard
+set clipboard=unnamedplus
+
 " Airline config
 " Display all buffers when there's only one tab open
 let g:airline#extensions#tabline#enabled = 1
@@ -123,7 +127,11 @@ function! AirlineInit()
     let g:airline_section_b = airline#section#create(['branch'])
 endfunction
 autocmd VimEnter * call AirlineInit()
- 
+
+" Vimux configuration
+let g:VimuxCloseOnExit = 1
+
+
 " Fondo con la transparencia de la terminal
 autocmd VimEnter * hi Normal guibg=NONE ctermbg=NONE
 
@@ -176,7 +184,7 @@ function! RPlot()
 
 	" Open only if file exists
 	if filereadable(l:plotpath)
-		let l:plot_modtime = getftime(l:plotpath)
+        let l:plot_modtime = getftime(l:plotpath)
 		let l:script_modtime = getftime(l:scriptname)
 
 		" Open only if it has been modified by the current script
@@ -186,32 +194,19 @@ function! RPlot()
 	endif
 endfunction
 
-" Función para ejecutar un script de R
+" Función para ejecutar un script de R usando tmux para la salida
 function! RunRScript()
-    let scriptname = expand('%:p')
-    let term_buffer_name = 'Rterm'
-	let output_file = '.output'
-    
-    " Check if the 'Rterm' buffer exists
-    let term_buffer_exists = bufwinnr(term_buffer_name)
-
-	silent execute "write"
-    " Send the Rscript command to the existing terminal buffer or create a new one
-    if term_buffer_exists == -1
-        " If no 'Rterm' buffer exists, create a new one and send the command
-        belowright vert term
-        " Rename the terminal buffer to 'Rterm'
-        setlocal nobuflisted buftype=nofile bufhidden=hide noswapfile nowrap
-        execute 'file ' . term_buffer_name
-	else
-		" If the 'Rterm' buffer exists, send a command to quit 'less'
-        call term_sendkeys(term_buffer_name, "q\<CR>")
+    " Check if the current file is an R file
+    if (&ft != 'r')
+        return
     endif
-	" Send the Rscript command to the 'Rterm' buffer
-	call term_sendkeys(term_buffer_name, "R --quiet -f " . scriptname . " > " . output_file . " 2>&1 \<CR>")
-	call term_sendkeys(term_buffer_name, "less " . output_file . "\<CR>")
-	
-	sleep 1
+
+    " Set the split pane to be vertical and fill 40% of the window
+    let b:VimuxOrientation = "h"
+    let b:VimuxHeight = "50"
+
+    call VimuxRunCommand("clear; R --quiet -f " . bufname("%") . " 2>&1 | less")
+
 	call RPlot()
 endfunction
 
@@ -235,15 +230,29 @@ nnoremap <Leader><S-Tab> :bprevious<CR>
 " Windows (movement with Ctrl+h/j/k/l provided by tmux-navigator)
 nnoremap <Leader>v <C-W>v 
 nnoremap <Leader>h <C-W>s
+nnoremap <Leader>c <C-W>c
 
 " FZF
 nnoremap <Leader>f :Files<CR>
-nnoremap <Leader>p :GFiles<CR>
 nnoremap <Leader>g :GFiles?<CR>
 nnoremap <Leader>b :Buffers<CR>
 nnoremap <Leader>W :Windows<CR>
 " R
-nnoremap <Leader>r :call RunRScript()<CR>
+nnoremap <Leader>R :call RunRScript()<CR>
+
+" Vimux
+" Prompt for a command to run
+nnoremap <Leader>vp :VimuxPromptCommand<CR>
+" Run last command executed by VimuxRunCommand
+nnoremap <Leader>vl :VimuxRunLastCommand<CR>
+" Inspect runner pane
+nnoremap <Leader>vi :VimuxInspectRunner<CR>
+" Close vim tmux runner opened by VimuxRunCommand
+nnoremap <Leader>vq :VimuxCloseRunner<CR>
+" Interrupt any command running in the runner pane
+nnoremap <Leader>vx :VimuxInterruptRunner<CR>
+" Zoom the runner pane (use <bind-key> z to restore runner pane)
+nnoremap <Leader>vz :call VimuxZoomRunner()<CR>
 
 " Autocompletar con tabulación
 inoremap <expr> <Tab> pumvisible() ? "<C-y>" : "<Tab>"
