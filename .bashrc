@@ -9,7 +9,7 @@ case $- in
 esac
 
 # Start terminal using tmux (no exec to be able to dettach)
-if command -v tmux &>/dev/null && [ -n "$PS1" ] && [ -z "$TMUX" ]; then
+if command -v tmux &>/dev/null && [ -n "$PS1" ] && [ -z "$TMUX" ] && [ "$USER" = "pedro" ]; then
     tmux
 fi
 
@@ -126,13 +126,32 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# alias and function to move up directories
+cd_up() {
+  case $1 in
+    *[!0-9]*)                                          # if no a number
+      cd $( pwd | sed -r "s|(.*/$1[^/]*/).*|\1|" )     # search dir_name in current path, if found - cd to it
+      ;;                                               # if not found - not cd
+    *)
+      cd $(printf "%0.0s../" $(seq 1 $1));             # cd ../../../../  (N dirs)
+    ;;
+  esac
+}
+alias 'cd..'='cd_up'
+
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
+# # Exit from both tmux and base terminal
+# alias exitt='exit; exit'
 
-# Git aliases
-alias git-tree='git log --graph --all'
+# Update all
+alias update='sudo snap refresh & sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y'
+
+# Configure numa_nodes for GPU usage with tensorflow
+alias numa-nodes='for a in /sys/bus/pci/devices/*; do echo 0 | sudo tee -a $a/numa_node; done'
+alias vpinns-venv="source $HOME/OneDrive/Tercero/Varios/CITMAGA/Code/fastvpinns/venv/bin/activate"
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -161,5 +180,24 @@ export PATH=$HOME/bin:$PATH
 
 
 # Anaconda 3
-export PATH="$HOME/anaconda3/bin:$PATH"
+# export PATH="$HOME/anaconda3/bin:$PATH"  # commented out by conda initialize
 
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/pedro/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/pedro/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/pedro/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/pedro/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# Nvidia CUDA
+export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}

@@ -159,6 +159,9 @@ augroup cursor_autocmd
 	
 augroup END
 
+" Configure syntax highlighting for .tpp files
+au BufNewFile,BufRead *.tpp set filetype=cpp
+
 " Configuración de VimTeX 
 let g:vimtex_view_method = 'general'
 let g:vimtex_compiler_method = 'latexmk'
@@ -185,6 +188,7 @@ function! RPlot()
 
 	" Open only if file exists
 	if filereadable(l:plotpath)
+        sleep 100m  " Dormir 100 ms para dar tiempo a que se genere la gráfica
         let l:plot_modtime = getftime(l:plotpath)
 		let l:script_modtime = getftime(l:scriptname)
 
