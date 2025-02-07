@@ -1,5 +1,6 @@
 call plug#begin('~/.vim/plugged')
 
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
@@ -8,12 +9,15 @@ Plug 'vim-airline/vim-airline'
 Plug 'jdhao/better-escape.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'joshdick/onedark.vim'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'lervag/vimtex'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'preservim/vimux'
 Plug 'edkolev/tmuxline.vim'
+Plug 'fladson/vim-kitty'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'jasonccox/vim-wayland-clipboard'
+Plug 'rust-lang/rust.vim'
 
 call plug#end()
 
@@ -22,8 +26,8 @@ set encoding=utf-8
 syntax on
 filetype plugin indent on
 
-" Inserta números de línea relativos al cursor
-set number relativenumber
+" Inserta números de línea
+set number
 
 if has('termguicolors')
     " Turns on 24-bit RGB color support
@@ -34,7 +38,7 @@ if has('termguicolors')
 endif
 " Colores del tema
 set background=dark
-colorscheme onedark
+colorscheme catppuccin_mocha
 
 " Más opciones de autocompletado para los comandos
 set wildmenu
@@ -84,6 +88,8 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 let g:airline#extensions#branch#enabled = 1
 
 let g:airline_powerline_fonts=1
+
+let g:airline_theme = 'catppuccin_mocha'
 
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
@@ -176,8 +182,8 @@ augroup latex_autocmd
 	au FileType tex set complete-=i
 	" Start compilation
 	au BufEnter *.tex silent execute ':VimtexCompile' | redraw!
-	" Launch evince with the corresponding PDF file
-	au BufEnter *.tex silent execute '!evince %:r.pdf >/dev/null 2>&1 &'| redraw!
+	" Launch zathura with the corresponding PDF file
+	au BufEnter *.tex silent execute '!zathura --fork %:r.pdf >/dev/null 2>&1 &'| redraw!
 augroup END
 
 " Function to show an R plot
@@ -210,7 +216,7 @@ function! RunRScript()
     let b:VimuxOrientation = "h"
     let b:VimuxHeight = "50"
 
-    call VimuxRunCommand("clear; R --quiet -f " . bufname("%") . " 2>&1 | less")
+    call VimuxRunCommand("clear; R --quiet -f " . bufname("%") . " 2>&1 | bat")
 
 	call RPlot()
 endfunction
@@ -220,7 +226,7 @@ let g:tmux_navigator_save_on_switch = 2
 
 """ Atajos generales
 " Búsqueda con Espacio+s
-nnoremap <Leader>s :%s//g<Left><Left>
+nnoremap <Leader>s :%s::g<Left><Left>
 " Guardar el archivo
 nnoremap <Leader>w :w<CR>
 " Nuevas tabs

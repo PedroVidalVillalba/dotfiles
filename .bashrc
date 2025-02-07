@@ -8,10 +8,7 @@ case $- in
       *) return;;
 esac
 
-# Start terminal using tmux (no exec to be able to dettach)
-if command -v tmux &>/dev/null && [ -n "$PS1" ] && [ -z "$TMUX" ] && [ "$USER" = "pedro" ]; then
-    tmux
-fi
+# source /usr/share/blesh/ble.sh --noattach
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -21,8 +18,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=10000
+HISTFILESIZE=20000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -49,7 +46,7 @@ esac
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -62,36 +59,36 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-git_prompt() {
+function git_prompt() {
     local rep=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/\* \(.*\)/\1/')
     if [ "$rep" != "" ]; then
         echo "  $rep "
     fi
 }
 
-# Onedark theme colors
-one_none="\[\e[00m\]"
-one_red_bg="\[\e[48;2;224;108;117m\]"
-one_green_bg="\[\e[48;2;152;195;121m\]"
-one_blue_bg="\[\e[48;2;97;175;239m\]"
-one_red_fg="\[\e[38;2;224;108;117m\]"
-one_green_fg="\[\e[38;2;152;195;121m\]"
-one_blue_fg="\[\e[38;2;97;175;239m\]"
-one_black="\[\e[38;2;40;44;52m\]"
+# Catppuccion theme colors
+cat_none="\[\e[00m\]"
+cat_red_bg="\[\e[48;2;243;139;168m\]"
+cat_green_bg="\[\e[48;2;148;226;213m\]"
+cat_blue_bg="\[\e[48;2;137;180;250m\]"
+cat_red_fg="\[\e[38;2;243;139;168m\]"
+cat_green_fg="\[\e[38;2;148;226;213m\]"
+cat_blue_fg="\[\e[38;2;137;180;250m\]"
+cat_black="\[\e[38;2;30;30;46m\]"
 
 beam_cursor="\[\e[5 q\]"
 
 if [ "$color_prompt" = yes ]; then
     PS1="${debian_chroot:+($debian_chroot)}" 
     PS1+="\n┌${beam_cursor}"
-    PS1+="${one_none}${one_green_fg}"             # Triangle separator
-    PS1+="${one_green_bg}${one_black}  \u@\h "  # User and hostname
-    PS1+="${one_blue_bg}${one_green_fg}"          # Triangle separator
-    PS1+="${one_blue_bg}${one_black}  \w "       # Working directory
-    PS1+="${one_red_bg}${one_blue_fg}"            # Triangle separator
-    PS1+="${one_red_bg}${one_black}\$(git_prompt)" # Git branch
-    PS1+="${one_none}${one_red_fg}"               # Triangle separator
-    PS1+="${one_none}\n└ "                         # Newline and prompt
+    PS1+="${cat_none}${cat_blue_fg}"             # Triangle separator
+    PS1+="${cat_blue_bg}${cat_black}  \u‖\h "  # User and hostname
+    PS1+="${cat_green_bg}${cat_blue_fg}"          # Triangle separator
+    PS1+="${cat_green_bg}${cat_black}  \w "       # Working directory
+    PS1+="${cat_red_bg}${cat_green_fg}"            # Triangle separator
+    PS1+="${cat_red_bg}${cat_black}\$(git_prompt)" # Git branch
+    PS1+="${cat_none}${cat_red_fg}"               # Triangle separator
+    PS1+="${cat_none}\n└ "                         # Newline and prompt
 else
     export PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\n\$ '
 fi
@@ -143,11 +140,14 @@ alias 'cd..'='cd_up'
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# # Exit from both tmux and base terminal
-# alias exitt='exit; exit'
-
 # Update all
-alias update='sudo snap refresh & sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y'
+alias update='sudo pacman -Syu && sudo pacman -R $(pacman -Qdtq)'
+
+# Kitten aliases
+alias icat='kitten icat'
+
+# Alias for opening files
+alias open='xdg-open'
 
 # Configure numa_nodes for GPU usage with tensorflow
 alias numa-nodes='for a in /sys/bus/pci/devices/*; do echo 0 | sudo tee -a $a/numa_node; done'
@@ -176,28 +176,28 @@ fi
 # Custom scripts
 export PATH=$HOME/bin:$PATH
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-
-# Anaconda 3
-# export PATH="$HOME/anaconda3/bin:$PATH"  # commented out by conda initialize
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/pedro/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/pedro/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/pedro/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/pedro/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+# Catppuccin theme for fzf
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--multi"
 
 # Nvidia CUDA
 export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+# MATLAB
+export PATH=${PATH}:/opt/matlab/bin
+
+# IntelliJ
+export IDEAVIMRC=~/.config/ideavim/ideavimrc
+
+set -o vi
+
+eval "$(zoxide init --cmd cd bash)"
+[ -f ~/.config/fzf/config.sh ] && source ~/.config/fzf/config.sh
+
+
+# [[ ${BLE_VERSION-} ]] && ble-attach
